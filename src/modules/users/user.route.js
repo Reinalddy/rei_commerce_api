@@ -11,6 +11,7 @@ router.post(
     [
         body('email').isEmail().withMessage('Invalid email'),
         body('password').isLength({ min: 6 }).withMessage('Password min 6 chars'),
+        body('name').isLength({ min: 3 }).withMessage('Name min 3 chars'),
     ],
     register
 );
