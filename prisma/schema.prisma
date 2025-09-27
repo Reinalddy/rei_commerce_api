@@ -12,124 +12,147 @@ datasource db {
 }
 
 // ==============
-// ENUMS
+// MODELS
 // ==============
 
-// Enum untuk role user (Admin atau Customer)
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  role      Role      @default(USER) // admin, user
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  orders    Order[]
+  cart      Cart?
+
+  @@map("users")
+}
+
+model Product {
+  id          Int        @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal     @db.Decimal(10,2)
+  stock       Int
+  imageUrl    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  categoryId  Int
+  category    Category    @relation(fields: [categoryId], references: [id])
+
+  orderItems  OrderItem[]
+  cartItems   CartItem[]
+
+  @@map("products")
+}
+
+model Category {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  products Product[]
+
+  @@map("categories")
+}
+
+model Cart {
+  id      Int        @id @default(autoincrement())
+  userId  Int        @unique
+  user    User       @relation(fields: [userId], references: [id])
+  items   CartItem[]
+
+  @@map("carts")
+}
+
+model CartItem {
+  id        Int      @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int      @default(1)
+
+  cart      Cart     @relation(fields: [cartId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("cart_items")
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  userId      Int
+  totalAmount Decimal      @db.Decimal(10,2)
+  status      OrderStatus  @default(PENDING)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user        User         @relation(fields: [userId], references: [id])
+  items       OrderItem[]
+  payment     Payment?
+  shipment    Shipment?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id        Int      @id @default(autoincrement())
+  orderId   Int
+  productId Int
+  quantity  Int
+  price     Decimal  @db.Decimal(10,2)
+
+  order     Order    @relation(fields: [orderId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@map("order_items")
+}
+
+model Payment {
+  id        Int        @id @default(autoincrement())
+  orderId   Int        @unique
+  method    String
+  status    PaymentStatus @default(PENDING)
+  paidAt    DateTime?
+
+  order     Order      @relation(fields: [orderId], references: [id])
+
+  @@map("payments")
+}
+
+model Shipment {
+  id          Int       @id @default(autoincrement())
+  orderId     Int       @unique
+  address     String
+  city        String
+  postalCode  String
+  status      ShipmentStatus @default(PROCESSING)
+
+  order       Order     @relation(fields: [orderId], references: [id])
+
+  @@map("shipments")
+}
+
 enum Role {
-  CUSTOMER
+  USER
   ADMIN
 }
 
-// Enum untuk status pesanan
 enum OrderStatus {
   PENDING
   PAID
   SHIPPED
-  DELIVERED
+  COMPLETED
   CANCELLED
 }
 
-
-// ==============
-// MODELS
-// ==============
-
-// --- MODEL UNTUK USER ---
-model User {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String?
-  password  String
-  address   String?
-  role      Role     @default(CUSTOMER)
-
-  // Relasi
-  cart      Cart?    // Setiap user punya satu keranjang (one-to-one)
-  orders    Order[]  // Setiap user bisa punya banyak pesanan (one-to-many)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }
 
-// --- MODEL UNTUK PRODUK ---
-model Product {
-  id          Int      @id @default(autoincrement())
-  name        String
-  description String   @db.Text // Tipe data Text untuk deskripsi yang panjang
-  price       Decimal  @db.Decimal(12, 2) // Tipe data Decimal lebih aman untuk uang
-  stock       Int      @default(0)
-  imageUrl    String?
-
-  // Relasi
-  cartItems   CartItem[]  // Produk ini bisa ada di banyak keranjang
-  orderItems  OrderItem[] // Produk ini bisa ada di banyak pesanan
-
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-// --- MODEL UNTUK KERANJANG BELANJA ---
-model Cart {
-  id     Int @id @default(autoincrement())
-  userId Int @unique // @unique memastikan relasi one-to-one dengan User
-
-  // Relasi
-  user   User       @relation(fields: [userId], references: [id])
-  items  CartItem[] // Keranjang ini bisa berisi banyak item
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// --- MODEL PENGHUBUNG: CART & PRODUCT (MANY-TO-MANY) ---
-// Tabel ini untuk menyimpan produk apa saja yang ada di dalam sebuah keranjang
-model CartItem {
-  id        Int @id @default(autoincrement())
-  cartId    Int
-  productId Int
-  quantity  Int
-
-  // Relasi
-  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade) // Jika cart dihapus, itemnya ikut terhapus
-  product   Product @relation(fields: [productId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Constraint agar produk yang sama tidak duplikat dalam satu keranjang
-  @@unique([cartId, productId])
-}
-
-// --- MODEL UNTUK PESANAN (ORDER) ---
-model Order {
-  id              Int         @id @default(autoincrement())
-  userId          Int
-  totalAmount     Decimal     @db.Decimal(12, 2)
-  status          OrderStatus @default(PENDING)
-  shippingAddress String
-
-  // Relasi
-  user            User        @relation(fields: [userId], references: [id])
-  items           OrderItem[] // Pesanan ini terdiri dari banyak item
-
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-}
-
-// --- MODEL PENGHUBUNG: ORDER & PRODUCT (MANY-TO-MANY) ---
-// Tabel ini untuk menyimpan produk apa saja yang dibeli dalam sebuah pesanan
-model OrderItem {
-  id        Int     @id @default(autoincrement())
-  orderId   Int
-  productId Int
-  quantity  Int
-  price     Decimal @db.Decimal(12, 2) // Menyimpan harga produk PADA SAAT dibeli
-
-  // Relasi
-  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  product   Product @relation(fields: [productId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+enum ShipmentStatus {
+  PROCESSING
+  SHIPPED
+  DELIVERED
 }
