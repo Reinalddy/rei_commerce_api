@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './modules/users/user.route.js';
+import productRoutes from './modules/products/product.route.js';
 
 const app = express();
 
@@ -12,6 +13,8 @@ app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
+// PRODUCTS
+app.use('/api/products', productRoutes);
 
 // Error handling
 app.use((err, req, res, next) => {
