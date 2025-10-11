@@ -4,13 +4,11 @@ import { getAllProducts, getProductById, createProduct, updateProduct, deletePro
 import { authenticateToken, requireAdmin } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
-// GET PRODUCT ADMIN
-router.get("/",authenticateToken, requireAdmin, getAllProducts);
+router.get("/",authenticateToken, getAllProducts);
 // GET PRODUCT BY ID
 router.get("/detail",authenticateToken,requireAdmin, getProductById);
 // CREATE PRODUCT
-router.post("/",authenticateToken,requireAdmin, createProduct);
-
+router.post("/",authenticateToken, createProduct);
 // UPDATE PRODUCT
 router.put("/update",authenticateToken, updateProduct);
 // DELETE PRODUCT
