@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { register, login, getProfile } from './user.controller.js';
-import authMiddleware from '../../middlewares/auth.middleware.js';
+import {authenticateToken} from '../../middlewares/auth.middleware.js';
 
 const router = Router();
 
@@ -27,6 +27,6 @@ router.post(
 );
 
 // Protected route
-router.get('/profile', authMiddleware, getProfile);
+router.get('/profile', authenticateToken, getProfile);
 
 export default router;

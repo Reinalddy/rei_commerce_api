@@ -1,18 +1,19 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { getAllProducts, getProductById, createProduct, updateProductById, deleteProductById } from './product.controller.js';
+import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from './product.controller.js';
+import { authenticateToken, requireAdmin } from '../../middlewares/auth.middleware.js';
 
 const router = Router();
-
-// GET ALL PRODUCT
-router.get("/", getAllProducts);
+// GET PRODUCT ADMIN
+router.get("/",authenticateToken, requireAdmin, getAllProducts);
 // GET PRODUCT BY ID
-router.get("/:id", getProductById);
+router.get("/detail",authenticateToken,requireAdmin, getProductById);
 // CREATE PRODUCT
-router.post("/", createProduct);
+router.post("/",authenticateToken,requireAdmin, createProduct);
+
 // UPDATE PRODUCT
-router.put("/:id", updateProductById);
+router.put("/update",authenticateToken, updateProduct);
 // DELETE PRODUCT
-router.delete("/:id", deleteProductById);
+router.delete("/delete",authenticateToken, deleteProduct);
 
 export default router;

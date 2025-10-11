@@ -15,6 +15,17 @@ export const getAllProducts = async () => {
     return products;
 };
 
+export const getUserProduct = async (userId) => {
+    const products = await prisma.product.findMany({
+        where: { ownerId: userId },
+        include: {
+            category: { select: { id: true, name: true } },
+            owner: { select: { id: true, name: true } },
+        },
+    });
+    return products;
+};
+
 /**
  * Get a single product by its ID.
  * @param {number} productId - The ID of the product to find.
