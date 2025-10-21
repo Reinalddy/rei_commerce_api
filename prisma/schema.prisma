@@ -49,7 +49,34 @@ model Product {
   orderItems  OrderItem[]
   cartItems   CartItem[]
 
+  details     DetailProduct[]
+  variants    ProductVariant[]
+
   @@map("products")
+}
+
+model ProductVariant {
+  id          Int      @id @default(autoincrement())
+  productId   Int
+  name        String    // e.g. "Red - L", "32GB - Black"
+  sku         String?   @unique // SKU (Stock Keeping Unit) (kode produk)
+  price       Float
+  stock       Int       @default(0)
+  imageUrl    String?
+  attributes  Json?     // optional JSON: { "color": "red", "size": "L" }
+
+  product     Product   @relation(fields: [productId], references: [id])
+
+  @@map("product_variants")
+}
+
+model DetailProduct {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  variant     String
+  product     Product   @relation(fields: [productId], references: [id])
+  
+  @@map("detail_products")
 }
 
 model Category {
