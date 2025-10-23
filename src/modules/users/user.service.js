@@ -18,7 +18,20 @@ export const registerUser = async (email, password, name) => {
 
 export const loginUser = async (email, password) => {
     const user = await prisma.user.findUnique({ where: { email } });
-    if (!user) throw new Error('Invalid credentials');
+    if (!user) {
+        return {
+            status: false,
+            message: 'Invalid credentials',
+        }
+    }
+
+    // CEK APAKAH ROLE NYA ADALAH ADMIN, JIKA ADMIN, MAKA GAGAL LOGIN
+    if(user.role === "ADMIN") {
+        return {
+            status: false,
+            message: 'invalid credentials',
+        }
+    }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
