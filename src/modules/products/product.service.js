@@ -52,10 +52,15 @@ export const getProductById = async (productId) => {
  * @returns {Promise<Object>} The newly created product.
  */
 export const createProduct = async (productData) => {
-    const product = await prisma.product.create({
-        data: productData,
-    });
-    return product;
+    try {
+        const product = await prisma.product.create({
+            data: productData,
+        });
+        return product;
+        
+    } catch (error) {
+        console.log(error.message)
+    }
 };
 
 /**

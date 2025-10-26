@@ -35,7 +35,7 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
     try {
         const ownerId = req.user.id; // From auth middleware
-        const { name, description, price, stock, imageUrl, categoryId } = req.body;
+        const { name, description, price, stock, categoryId } = req.body;
 
         if (!name || price === undefined || stock === undefined || !categoryId) {
             return res.status(400).json({
@@ -43,6 +43,17 @@ export const createProduct = async (req, res) => {
                 message: 'Fields name, price, stock, and categoryId are required.',
             });
         }
+
+        // 🔥 Ambil path file yang di-upload
+        let imageUrl = null;
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`; // Path lokal
+        }
+
+        // res.json({
+        //     status: 'success',
+        //     message: ownerId,
+        // });
 
         const productData = {
             name,
@@ -53,9 +64,9 @@ export const createProduct = async (req, res) => {
             categoryId: parseInt(categoryId),
             ownerId,
         };
-
+        console.log(productData)
         const newProduct = await productService.createProduct(productData);
-        res.status(201).json({
+        res.status(200).json({
             status: 'success',
             message: 'Product created successfully',
             data: newProduct,

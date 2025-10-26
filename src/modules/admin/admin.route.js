@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { login } from './admin.controller.js';
-import { authenticateToken } from '../../middlewares/auth.middleware.js';
+import { authenticateToken , requireAdmin} from '../../middlewares/auth.middleware.js';
+import { createProduct } from '../products/product.controller.js';
+import { upload } from "../../middlewares/upload.js";
 
 const router = Router();
 
@@ -14,5 +16,7 @@ router.post(
     ],
     login
 );
+
+router.post("/create-product", authenticateToken, requireAdmin, upload.single("image"), createProduct)
 
 export default router;
