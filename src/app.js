@@ -3,6 +3,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import userRoutes from './modules/users/user.route.js';
 import productRoutes from './modules/products/product.route.js';
+import adminProductRoutes from './modules/admin/product/adminProduct.route.js';
 import adminRoutes from './modules/admin/admin.route.js';
 import path from "path";
 
@@ -20,6 +21,9 @@ app.use('/api/products', productRoutes);
 
 // ADMIN
 app.use("/api/admin", adminRoutes)
+// ADMIN PRODUCT
+app.use("/api/admin/products", adminProductRoutes)
+
 // ROUTE FOR VIEW IMAGE
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
