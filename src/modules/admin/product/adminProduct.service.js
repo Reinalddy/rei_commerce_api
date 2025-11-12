@@ -95,12 +95,28 @@ export const createProduct = async (productData) => {
  * @returns {Promise<Object>} The updated product.
  */
 export const updateProductById = async (productId, productData) => {
-    await getProductById(productId); // Ensure product exists before updating
-    const product = await prisma.product.update({
-        where: { id: productId },
-        data: productData,
-    });
-    return product;
+    try {
+        await getProductById(productId); // Ensure product exists before updating
+        
+        const product = await prisma.product.update({
+            where: { id: productId },
+            data: productData,
+        });
+
+        return {
+            status: true,
+            data: product,
+            message: 'Product updated successfully'
+        }
+    } catch (error) {
+        console.log(error.message);
+        return {
+            status: false,
+            message: error.message,
+            data: []
+        }
+    }
+
 };
 
 /**

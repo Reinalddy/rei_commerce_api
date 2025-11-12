@@ -13,7 +13,7 @@ export const getAllProducts = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -25,15 +25,13 @@ export const getProductById = async (req, res) => {
         const product = await productService.getProductById(productId);
 
         res.status(200).json({
+            code: 200,
             status: 'success',
             data: product.data,
         });
 
     } catch (error) {
-        if (error.message === 'Product not found') {
-            return res.status(404).json({ status: 'error', message: error.message });
-        }
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -45,7 +43,7 @@ export const createProduct = async (req, res) => {
 
         if (!name || price === undefined || stock === undefined || !categoryId) {
             return res.status(400).json({
-                status: 'error',
+                code: 400,
                 message: 'Fields name, price, stock, and categoryId are required.',
             });
         }
@@ -70,16 +68,17 @@ export const createProduct = async (req, res) => {
         const newProduct = await productService.createProduct(productData);
 
         if(newProduct.status === false) {
-            return res.status(500).json({ status: 'error', message: newProduct.message });
+            return res.status(500).json({code: 500, code: 500, message: newProduct.message });
         }
+
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Product created successfully',
             data: newProduct.data,
         });
 
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -91,9 +90,9 @@ export const updateProduct = async (req, res) => {
         if (productDataPayload.ownerId) delete productDataPayload.ownerId; // Prevent owner change
 
         const productData = {
-            name,
-            description,
-            imageUrl,
+            name : productDataPayload.name,
+            description: productDataPayload.description,
+            imageUrl : productDataPayload.imageUrl,
             createdAt: new Date(),
             updatedAt: new Date(),
             categoryId: parseInt(categoryId),
@@ -102,16 +101,19 @@ export const updateProduct = async (req, res) => {
         };
 
         const updatedProduct = await productService.updateProductById(productId, productData);
+
+        if(updatedProduct.status === false) {
+            return res.status(500).json({code: 500, message: updatedProduct.message });
+        }
+
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Product updated successfully',
             data: updatedProduct,
         });
+
     } catch (error) {
-        if (error.message === 'Product not found') {
-            return res.status(404).json({ status: 'error', message: error.message });
-        }
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -126,9 +128,9 @@ export const deleteProduct = async (req, res) => {
         });
     } catch (error) {
         if (error.message === 'Product not found') {
-            return res.status(404).json({ status: 'error', message: error.message });
+            return res.status(404).json({ code: 500, message: error.message });
         }
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -139,7 +141,7 @@ export const createProductVariant = async (req, res) => {
 
         if (!productId || !name || price === undefined || stock === undefined || !sku) {
             return res.status(400).json({
-                status: 'error',
+                code: 500,
                 message: 'Fields productId, name, price, stock, and sku are required.',
             });
         }
@@ -173,7 +175,7 @@ export const createProductVariant = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 }
 
@@ -187,7 +189,7 @@ export const getAllVariants = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -205,7 +207,7 @@ export const getProductVariantDetail = async (req, res) => {
     } catch (error) {
         console.log(error.message);
         
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 }
 
@@ -218,7 +220,7 @@ export const updateProductVariant = async (req, res) => {
 
         if (!productId || !name || price === undefined || stock === undefined || !sku, !variantId) {
             return res.status(400).json({
-                status: 'error',
+                code: 500,
                 message: 'Fields productId, name, price, stock, and sku are required.',
             });
         }
@@ -250,7 +252,7 @@ export const updateProductVariant = async (req, res) => {
 
     } catch (error) {
         console.log(error.message);
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
 
@@ -267,6 +269,6 @@ export const deleteProductVariant = async (req, res) => {
         });
 
     } catch (error) {
-        res.status(500).json({ status: 'error', message: error.message });
+        res.status(500).json({ code: 500, message: error.message });
     }
 };
