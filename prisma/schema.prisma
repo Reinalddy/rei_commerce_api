@@ -25,8 +25,15 @@ model User {
   updatedAt DateTime  @updatedAt
 
   orders    Order[]
-  products  Product[]
   cart      Cart?
+
+  // Relasi ke Product (dua arah)
+  createdProducts Product[] @relation("ProductCreatedBy")
+  updatedProducts Product[] @relation("ProductUpdatedBy")
+  // RELASI KE PRODUCT VARIANTS
+  createdVariants ProductVariant[] @relation("ProductVariantCreatedBy")
+  updatedVariants ProductVariant[] @relation("ProductVariantUpdatedBy")
+
 
   @@map("users")
 }
@@ -35,15 +42,18 @@ model Product {
   id          Int        @id @default(autoincrement())
   name        String
   description String?
-  price       Float      @default(0)
-  stock       Int
   imageUrl    String?
-  ownerId     Int
-  owner       User     @relation(fields: [ownerId], references: [id])
+  created_by  Int
+  updated_by  Int
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
-
   categoryId  Int
+
+  // Relasi ke user yang membuat produk
+  createdBy   User       @relation("ProductCreatedBy", fields: [created_by], references: [id])
+  // Relasi ke user yang mengupdate produk
+  updatedBy   User       @relation("ProductUpdatedBy", fields: [updated_by], references: [id])
+
   category    Category    @relation(fields: [categoryId], references: [id])
 
   orderItems  OrderItem[]
@@ -62,9 +72,17 @@ model ProductVariant {
   price       Float
   stock       Int       @default(0)
   imageUrl    String?
-  attributes  Json?     // optional JSON: { "color": "red", "size": "L" }
+  created_by  Int
+  updated_by  Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  createdBy   User      @relation("ProductVariantCreatedBy", fields: [created_by], references: [id])
+  updatedBy   User      @relation("ProductVariantUpdatedBy", fields: [updated_by], references: [id])
 
   product     Product   @relation(fields: [productId], references: [id])
+
+
 
   @@map("product_variants")
 }
