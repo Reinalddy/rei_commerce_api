@@ -4,12 +4,19 @@ import * as productService from './adminProduct.service.js';
 // Controller to get all products (Public Access)
 export const getAllProducts = async (req, res) => {
     try {
-        const products = await productService.getAllProducts();
+
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 10;
+        const search = req.query.search || "";
+        const skip = (page - 1) * limit;
+
+        const products = await productService.getAllProducts(skip, limit, search, page);
 
         res.status(200).json({
             code: 200,
             status: 'success',
             data: products.data,
+            pagination: products.pagination,
         });
 
     } catch (error) {
@@ -39,9 +46,9 @@ export const getProductById = async (req, res) => {
 export const createProduct = async (req, res) => {
     try {
         const adminId = req.user.id; // From auth middleware
-        const { name, description, price, stock, categoryId } = req.body;
+        const { name, description, categoryId } = req.body;
 
-        if (!name || price === undefined || stock === undefined || !categoryId) {
+        if (!name  || !categoryId || !description) {
             return res.status(400).json({
                 code: 400,
                 message: 'Fields name, price, stock, and categoryId are required.',
@@ -127,9 +134,6 @@ export const deleteProduct = async (req, res) => {
             message: 'Product deleted successfully',
         });
     } catch (error) {
-        if (error.message === 'Product not found') {
-            return res.status(404).json({ code: 500, message: error.message });
-        }
         res.status(500).json({ code: 500, message: error.message });
     }
 };
@@ -166,6 +170,10 @@ export const createProductVariant = async (req, res) => {
         };
 
         const newVariant = await productService.createProductVariant(productId, variantData);
+
+        if(newVariant.status === false) {
+            return res.status(500).json({code: 500, message: newVariant.message });
+        }
 
         res.status(200).json({
             status: 'success',

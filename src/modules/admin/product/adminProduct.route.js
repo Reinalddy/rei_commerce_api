@@ -1,17 +1,12 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
-import { getAllProducts, getProductById, createProduct, updateProduct, deleteProduct } from './adminProduct.controller.js';
 import { authenticateToken, requireAdmin } from '../../../middlewares/auth.middleware.js';
+import { createProduct, getAllProducts } from './adminProduct.controller.js';
+import { upload } from "../../../middlewares/upload.js";
 
 const router = Router();
-router.get("/",authenticateToken, getAllProducts);
-// GET PRODUCT BY ID
-router.get("/detail",authenticateToken,requireAdmin, getProductById);
 // CREATE PRODUCT
-router.post("/",authenticateToken, createProduct);
-// UPDATE PRODUCT
-router.put("/update",authenticateToken, updateProduct);
-// DELETE PRODUCT
-router.delete("/delete",authenticateToken, deleteProduct);
+router.post("/",authenticateToken, requireAdmin, upload.single("image"), createProduct);
+router.get("/", authenticateToken, requireAdmin, getAllProducts);
 
 export default router;

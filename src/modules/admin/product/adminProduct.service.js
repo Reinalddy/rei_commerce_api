@@ -5,18 +5,37 @@ import prisma from "../../../config/db.js";
  * Get all products from the database with their relations.
  * @returns {Promise<Array>} A list of products.
  */
-export const getAllProducts = async () => {
+export const getAllProducts = async (skip, limit, search, page) => {
+    const where = {
+        name: {
+            contains: search,
+            mode: "insensitive" // biar case-insensitive
+        }
+    };
+
+    // Total data
+    const total = await prisma.product.count({ where });
 
     const products = await prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
         include: {
             category: { select: { id: true, name: true } },
-            owner: { select: { id: true, name: true } },
+            createdBy: { select: { id: true, name: true } },
+            updatedBy: { select: { id: true, name: true } },
         },
     });
 
     return {
         status: true,
         data: products,
+        pagination: {
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit)
+        },
         message: 'Products found successfully'
     }
 };
