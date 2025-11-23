@@ -150,18 +150,18 @@ export const createProductVariant = async (req, res) => {
             });
         }
 
-        // 🔥 Ambil path file yang di-upload
+        // Ambil path file yang di-upload
         let imageUrl = null;
         if (req.file) {
             imageUrl = `/uploads/${req.file.filename}`; // Path lokal
         }
 
         const variantData = {
-            productId: parseInt(productId),
+            productId: Number(productId),
             name,
             sku,
-            price,
-            stock,
+            price: parseFloat(price),
+            stock: Number(stock),
             imageUrl,
             createdAt: new Date(),
             created_by: adminId,

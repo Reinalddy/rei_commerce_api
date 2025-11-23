@@ -152,6 +152,7 @@ export const deleteProductById = async (productId) => {
 // CREATE VARIANT AND STORE STOCK
 export const createProductVariant = async (productId, variantData) => {
     try {
+        productId = Number(productId);
         // SEARCH PRODUCT BY ID IS VALID PRODUCT OR NOT
         const product = await prisma.product.findUnique({
             where: {id: productId},
@@ -165,8 +166,8 @@ export const createProductVariant = async (productId, variantData) => {
         }
 
         // BEGIN CREATE VARIANTS
-        await prisma.variant.create({
-            data: variantData,
+        await prisma.productVariant.create({
+            data: variantData
         });
 
         return {
