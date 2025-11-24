@@ -14,7 +14,6 @@ export const getAllProducts = async (req, res) => {
 
         res.status(200).json({
             code: 200,
-            status: 'success',
             data: products.data,
             pagination: products.pagination,
         });
@@ -33,7 +32,6 @@ export const getProductById = async (req, res) => {
 
         res.status(200).json({
             code: 200,
-            status: 'success',
             data: product.data,
         });
 
@@ -93,19 +91,31 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const productId = parseInt(req.params.id);
+        // GET ADMIN ID FROM AUTH MIDDLEWARE
+        const adminId = req.user.id;
         const productDataPayload = req.body;
-        if (productDataPayload.ownerId) delete productDataPayload.ownerId; // Prevent owner change
+        if (productDataPayload.createdAt) delete productDataPayload.createdAt; // Prevent owner change
 
+        // 🔥 Ambil path file yang di-upload
+        let imageUrl = null;
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`; // Path lokal
+        }
+        
         const productData = {
             name : productDataPayload.name,
             description: productDataPayload.description,
-            imageUrl : productDataPayload.imageUrl,
             createdAt: new Date(),
             updatedAt: new Date(),
-            categoryId: parseInt(categoryId),
+            categoryId: parseInt(productDataPayload.categoryId),
             created_by: adminId,
             updated_by: adminId,
         };
+
+        // DETERMINE IMAGE URL
+        if (imageUrl) {
+            productData.imageUrl = imageUrl;
+        }
 
         const updatedProduct = await productService.updateProductById(productId, productData);
 
@@ -130,7 +140,7 @@ export const deleteProduct = async (req, res) => {
         const productId = parseInt(req.params.id);
         await productService.deleteProductById(productId);
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Product deleted successfully',
         });
     } catch (error) {
@@ -176,7 +186,7 @@ export const createProductVariant = async (req, res) => {
         }
 
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Variant created successfully',
             data: newVariant,
         });
@@ -192,7 +202,7 @@ export const getAllVariants = async (req, res) => {
         const variants = await productService.getProductVariantsList();
 
         res.status(200).json({
-            status: 'success',
+            code: 200,
             data: variants,
         });
 
@@ -208,7 +218,7 @@ export const getProductVariantDetail = async (req, res) => {
         const variant = await productService.getProductVariantsDetail(variantId);
 
         res.status(200).json({
-            status: 'success',
+            code: 200,
             data: variant,
         });
 
@@ -253,7 +263,7 @@ export const updateProductVariant = async (req, res) => {
         const updatedVariant = await productService.updateProductVariant(variantId, variantData);
 
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Variant updated successfully',
             data: updatedVariant,
         });
@@ -272,7 +282,7 @@ export const deleteProductVariant = async (req, res) => {
         await productService.deleteProductVariant(variantId);
 
         res.status(200).json({
-            status: 'success',
+            code: 200,
             message: 'Variant deleted successfully',
         });
 
@@ -280,3 +290,22 @@ export const deleteProductVariant = async (req, res) => {
         res.status(500).json({ code: 500, message: error.message });
     }
 };
+
+export const getProductCategory = async (req, res) => {
+    try {
+        const categories = await productService.getProductCategory();
+
+        if(categories.status === false) {
+            return res.status(500).json({code: 500, message: categories.message });
+        }
+
+        res.status(200).json({
+            code: 200,
+            data: categories.data,
+            message: 'Categories found successfully'
+        });
+
+    } catch (error) {
+        res.status(500).json({ code: 500, message: error.message });
+    }
+}

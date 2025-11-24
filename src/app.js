@@ -28,8 +28,21 @@ app.use("/api/admin/products", adminProductRoutes)
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Error handling
+// Global Error Handler
 app.use((err, req, res, next) => {
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("🔥 ERROR:", err); // log full error on server
+
+    const statusCode = err.statusCode || 500;
+
+    res.status(statusCode).json({
+        code: statusCode,
+        message: err.message || "Something went wrong",
+        ...(process.env.NODE_ENV === "development" && {
+            stack: err.stack,
+            name: err.name
+        })
+    });
 });
+
 
 export default app;

@@ -62,7 +62,7 @@ export const getProductById = async (productId) => {
         where: { id: productId },
         include: {
             category: true,
-            owner: { select: { id: true, name: true } },
+            // createdBy
         },
     });
 
@@ -143,10 +143,23 @@ export const updateProductById = async (productId, productData) => {
  * @param {number} productId - The ID of the product to delete.
  */
 export const deleteProductById = async (productId) => {
-    await getProductById(productId); // Ensure product exists before deleting
+    const existingProduct = await getProductById(productId); // Ensure product exists before deleting
+
+    if(!existingProduct) {
+        return {
+            status: false,
+            message: 'Product not found'
+        }
+    }
+
     await prisma.product.delete({
         where: { id: productId },
     });
+
+    return {
+        status: true,
+        message: 'Product deleted successfully'
+    }
 };
 
 // CREATE VARIANT AND STORE STOCK
@@ -280,6 +293,25 @@ export const deleteProductVariant = async (variantId) => {
             message: 'Variant deleted successfully'
         }
         
+    } catch (error) {
+        console.log(error.message);
+        return {
+            status: false,
+            message: error.message,
+            data: []
+        }
+    }
+}
+
+export const getProductCategory = async () => {
+    try {
+        const categories = await prisma.category.findMany();
+
+        return {
+            status: true,
+            data: categories,
+            message: 'Categories found successfully'
+        }
     } catch (error) {
         console.log(error.message);
         return {

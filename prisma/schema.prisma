@@ -80,7 +80,7 @@ model ProductVariant {
   createdBy   User      @relation("ProductVariantCreatedBy", fields: [created_by], references: [id])
   updatedBy   User      @relation("ProductVariantUpdatedBy", fields: [updated_by], references: [id])
 
-  product     Product   @relation(fields: [productId], references: [id])
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
 
 
 
