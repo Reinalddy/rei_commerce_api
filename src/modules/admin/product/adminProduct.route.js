@@ -1,18 +1,19 @@
 import { Router } from 'express';
 import { body } from 'express-validator';
 import { authenticateToken, requireAdmin } from '../../../middlewares/auth.middleware.js';
-import { createProduct, getAllProducts, createProductVariant, getProductCategory, updateProduct, deleteProduct } from './adminProduct.controller.js';
+import * as productController from './adminProduct.controller.js';
 import { upload } from "../../../middlewares/upload.js";
 
 const router = Router();
 // CREATE PRODUCT
-router.post("/",authenticateToken, requireAdmin, upload.single("image"), createProduct);
-router.put("/:id", authenticateToken, requireAdmin, upload.single("image"), updateProduct);
-router.delete("/:id", authenticateToken, requireAdmin, deleteProduct);
-router.get("/", authenticateToken, requireAdmin, getAllProducts);
-router.get("/category", authenticateToken, requireAdmin, getProductCategory);
+router.post("/", authenticateToken, requireAdmin, upload.single("image"), productController.createProduct);
+router.put("/:id", authenticateToken, requireAdmin, upload.single("image"), productController.updateProduct);
+router.delete("/:id", authenticateToken, requireAdmin, productController.deleteProduct);
+router.get("/", authenticateToken, requireAdmin, productController.getAllProducts);
+router.get("/category", authenticateToken, requireAdmin, productController.getProductCategory);
 
-// CREATE VARIANT
-router.post("/variant", authenticateToken, requireAdmin, upload.single("image"), createProductVariant);
+// VARIANT
+router.get("/variant", authenticateToken, requireAdmin, productController.getAllVariants);
+router.post("/variant", authenticateToken, requireAdmin, upload.single("image"), productController.getAllVariants);
 
 export default router;

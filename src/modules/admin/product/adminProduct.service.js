@@ -199,7 +199,12 @@ export const createProductVariant = async (productId, variantData) => {
 
 export const getProductVariantsList = async () => {
     try {
-        const variants = await prisma.variant.findMany();
+        const variants = await prisma.variant.findMany({
+            include: {
+                product: { select: { id: true, name: true } },
+                createdBy: { select: { id: true, name: true } },
+            }
+        });
         return {
             status: true,
             data: variants,
