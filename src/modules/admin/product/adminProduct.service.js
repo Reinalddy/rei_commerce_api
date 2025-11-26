@@ -328,3 +328,40 @@ export const getProductCategory = async () => {
         }
     }
 }
+
+export const getTotalProduct = async () => {
+    try {
+        const totalProduct = await prisma.product.count();
+        return {
+            status: true,
+            data: totalProduct,
+            message: 'Total product found successfully'
+        }
+    } catch (error) {
+        console.log(error.message);
+        return {
+            status: false,
+            message: error.message,
+            data: []
+        }
+    }
+}
+
+export const getTotalProductVariant = async () => {
+    try {
+        const totalProductVariant = await prisma.productVariant.count();
+        
+        return {
+            status: true,
+            data: totalProductVariant,
+            message: 'Total product variant found successfully'
+        }
+    } catch (error) {
+        console.log(error.message);
+        return {
+            status: false,
+            message: error.message,
+            data: []
+        }
+    }
+}

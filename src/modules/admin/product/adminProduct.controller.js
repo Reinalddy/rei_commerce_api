@@ -326,3 +326,44 @@ export const getProductCategory = async (req, res) => {
         res.status(500).json({ code: 500, message: error.message });
     }
 }
+
+export const getTotalProduct = async (req, res) => {
+    try {
+        const totalProduct = await productService.getTotalProduct();
+
+        if(totalProduct.status === false) {
+            return res.status(500).json({code: 500, message: totalProduct.message });
+        }
+
+        res.status(200).json({
+            code: 200,
+            data: totalProduct.data,
+            message: 'Total product found successfully'
+        });
+        
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({ code: 500, message: error.message });
+    }
+};
+
+export const getTotalProductVariant = async (req, res) =>  {
+    try {
+        const totalProductVariant = await productService.getTotalProductVariant();
+        
+        if(totalProductVariant.status === false) {
+            return res.status(500).json({code: 500, message: totalProductVariant.message });
+        }
+
+        res.status(200).json({
+            code: 200,
+            data: totalProductVariant.data,
+            message: 'Total product variant found successfully'
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({ code: 500, message: error.message });
+    }
+}
