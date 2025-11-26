@@ -199,11 +199,18 @@ export const createProductVariant = async (req, res) => {
 
 export const getAllVariants = async (req, res) => {
     try {
-        const variants = await productService.getProductVariantsList();
+        const productId = parseInt(req.params.productId);
+
+        const variants = await productService.getProductVariantsList(productId);
+
+        if(variants.status === false) {
+            return res.status(500).json({code: 500, message: variants.message });
+        }
 
         res.status(200).json({
             code: 200,
-            data: variants,
+            message: 'All Oke',
+            data: variants.data,
         });
 
     } catch (error) {
@@ -235,7 +242,7 @@ export const updateProductVariant = async (req, res) => {
         const { name, productId, sku, price, stock } = req.body;
 
         const variantId = parseInt(req.params.id);
-
+        console.log(variantId, "variantId");
         if (!productId || !name || price === undefined || stock === undefined || !sku, !variantId) {
             return res.status(400).json({
                 code: 500,
@@ -253,8 +260,8 @@ export const updateProductVariant = async (req, res) => {
             productId: parseInt(productId),
             name,
             sku,
-            price,
-            stock,
+            price: parseFloat(price),
+            stock: Number(stock),
             imageUrl,
             updatedAt: new Date(),
             updated_by: adminId,
@@ -262,10 +269,14 @@ export const updateProductVariant = async (req, res) => {
 
         const updatedVariant = await productService.updateProductVariant(variantId, variantData);
 
+        if(updatedVariant.status === false) {
+            return res.status(500).json({code: 500, message: updatedVariant.message });
+        }
+
         res.status(200).json({
             code: 200,
             message: 'Variant updated successfully',
-            data: updatedVariant,
+            data: updatedVariant.data,
         });
 
     } catch (error) {
@@ -281,12 +292,17 @@ export const deleteProductVariant = async (req, res) => {
 
         await productService.deleteProductVariant(variantId);
 
+        if(productService.status === false) {
+            return res.status(500).json({code: 500, message: productService.message });
+        }
+
         res.status(200).json({
             code: 200,
             message: 'Variant deleted successfully',
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ code: 500, message: error.message });
     }
 };
@@ -306,6 +322,7 @@ export const getProductCategory = async (req, res) => {
         });
 
     } catch (error) {
+        console.log(error);
         res.status(500).json({ code: 500, message: error.message });
     }
 }

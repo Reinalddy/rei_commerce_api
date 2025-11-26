@@ -197,14 +197,16 @@ export const createProductVariant = async (productId, variantData) => {
     }
 }
 
-export const getProductVariantsList = async () => {
+export const getProductVariantsList = async (productId) => {
     try {
-        const variants = await prisma.variant.findMany({
+        const variants = await prisma.productVariant.findMany({
+            where: { productId },
             include: {
                 product: { select: { id: true, name: true } },
-                createdBy: { select: { id: true, name: true } },
-            }
+                createdBy: { select: { id: true, name: true } }, // if exists in schema
+            },
         });
+
         return {
             status: true,
             data: variants,
@@ -243,7 +245,7 @@ export const getProductVariantsDetail = async (variantId) => {
 export const updateProductVariant = async (variantId, variantData) => {
     try {
         // SEARCH FIRTS IS VARIANT EXIST OR NOT
-        const variantExist = await prisma.variant.findUnique({
+        const variantExist = await prisma.productVariant.findUnique({
             where: {id: variantId},
         });
 
@@ -254,7 +256,7 @@ export const updateProductVariant = async (variantId, variantData) => {
             }
         }
 
-        const variant = await prisma.variant.update({
+        const variant = await prisma.productVariant.update({
             where: {id: variantId},
             data: variantData,
         });
@@ -277,7 +279,7 @@ export const updateProductVariant = async (variantId, variantData) => {
 export const deleteProductVariant = async (variantId) => {
     try {
         // SEARCH FIRTS IS VARIANT EXIST OR NOT
-        const variantExist = await prisma.variant.findUnique({
+        const variantExist = await prisma.productVariant.findUnique({
             where: {id: variantId},
         });
 
@@ -288,7 +290,7 @@ export const deleteProductVariant = async (variantId) => {
             }
         }
 
-        const variant = await prisma.variant.delete({
+        const variant = await prisma.productVariant.delete({
             where: {id: variantId},
         });
 

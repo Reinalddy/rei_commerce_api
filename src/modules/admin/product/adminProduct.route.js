@@ -13,7 +13,9 @@ router.get("/", authenticateToken, requireAdmin, productController.getAllProduct
 router.get("/category", authenticateToken, requireAdmin, productController.getProductCategory);
 
 // VARIANT
-router.get("/variant", authenticateToken, requireAdmin, productController.getAllVariants);
-router.post("/variant", authenticateToken, requireAdmin, upload.single("image"), productController.getAllVariants);
+router.get("/variant/:productId", authenticateToken, requireAdmin, productController.getAllVariants);
+router.post("/variant", authenticateToken, requireAdmin, upload.single("image"), productController.createProductVariant);
+router.put("/variant/:id", authenticateToken, requireAdmin, upload.single("image"), productController.updateProductVariant);
+router.delete("/variant/:id", authenticateToken, requireAdmin, productController.deleteProductVariant);
 
 export default router;
